@@ -1,5 +1,6 @@
 import logging
 import random
+import time
 from kb_module import *
 
 logging.basicConfig(level=logging.DEBUG)
@@ -25,15 +26,19 @@ class Task:
             logging.info(f"new rejected fact:\t{fact_id}")
             logging.info(f"actual rejected facts:\n\t{self.rejected_facts}")
 
-    def _most_popular_solution(self):
-        possible_solutions = self.kb.list_difference(
+    def _available_solutions(self):
+        solutions = self.kb.list_difference(
             self.kb.possible_solutions(self.accepted_facts),
             self.kb.possible_solutions(self.rejected_facts)
         )
-        logging.info(f"possible solutions:\n\t{possible_solutions}")
-        votes = self.kb.solutions_votes(possible_solutions)
-        most_popular = max(votes, key=lambda solution_data: solution_data[1])[0]
-        return most_popular
+        if not solutions:
+            solutions = self.kb.list_difference(
+                self.kb.all_solutions(), self.kb.possible_solutions(self.rejected_facts)
+            )
+        return solutions
+
+    def _most_popular_solution(self, available_solutions):
+        return self.kb.max_vote_up(available_solutions)[0]
 
     def _possible_facts(self, solution_id):
         facts_union = KnowledgeBase.list_union(self.accepted_facts, self.rejected_facts)
@@ -48,27 +53,39 @@ class Task:
               f"\t({self.kb.get_solution_verbal(solution_id)[2]})\n")
 
     def find_solution_step(self):
+        logging.info(f"available solutions: {self._available_solutions()}")
         # Целевое решение не меняется, починить
 
-        target_solution_id = self._most_popular_solution()
+        available_solutions = self._available_solutions()
+        if len(available_solutions) == 1:
+            logging.info(f"last available solution:\t{available_solutions[0]}")
+            exit(0)
+
+        target_solution_id = self._most_popular_solution(available_solutions)
         logging.info(f"target_solution_id:\t{target_solution_id}")
 
         target_fact_range = self._possible_facts(target_solution_id)
         logging.info(f"possible facts for {target_solution_id}:\n\t{target_fact_range}")
 
+        # закончились доступные факты = последняя цель является ответом
         if not target_fact_range:
-            logging.info(f"out of possible facts")
-            logging.info(f"last targeted solution: {target_solution_id}")
-            return target_solution_id
+            logging.info(f"run out of available facts\nlast targeted solution:\t{target_solution_id}")
+            exit(0)
 
         target_fact_id = self.kb.random_element(target_fact_range)
+
+        time.sleep(0.1)
         self.question(target_fact_id)
+
+        # закончились доступные решения = прекратить поиск
+        if not self._available_solutions():
+            logging.info(f"run out of available solutions")
+            exit(0)
+
         return None
 
 
 if __name__ == '__main__':
     testTask = Task(KnowledgeBase('KnowledgeBase.db'))
-    testTask.accepted_facts = [1]
-    print(testTask._most_popular_solution())
-    # while not testTask.find_solution_step():
-    #     pass
+    while not testTask.find_solution_step():
+        pass
