@@ -26,6 +26,7 @@ class KnowledgeBase:
         return [elem[0] for elem in data]
 
     def all_solutions(self):
+        """Получение id всех решений в базе"""
         return self.open_single_tuples(
             self.db.broad_select_request(f"""
                 SELECT id FROM solutions
@@ -33,22 +34,20 @@ class KnowledgeBase:
         )
 
     def max_vote_up(self, solutions_range):
+        """Получение решения с максимальной оценкой"""
         values = ", ".join([str(value) for value in solutions_range])
         return self.db.single_select_request(f"""
             SELECT id FROM solutions WHERE id IN ({values}) ORDER BY vote_up DESC
         """)
 
-    def solutions_votes(self, solutions_range):
-        return self.db.selection_by_column_in_values(
-            ['id', 'vote_up', 'vote_down', 'vote_count'], 'solutions', 'id', solutions_range
-        )
-
     def select_facts(self, solution_id):
+        """Выборка фактов на основании решений"""
         return self.open_single_tuples(
             self.db.selection_by_column_in_values(['fact_id'], 'pairs', 'solution_id', [solution_id])
         )
 
     def select_solutions(self, facts):
+        """Выборка решений на основании фактов"""
         solutions = self.open_single_tuples(
             self.db.selection_by_column_in_values(['solution_id'], 'pairs', 'fact_id', facts)
         )
@@ -62,16 +61,19 @@ class KnowledgeBase:
         return result
 
     def select_rej_solutions(self, facts):
+        """Выборка решений на основании фактов (отвергнутые)"""
         return self.open_single_tuples(
             self.db.selection_by_column_in_values(['solution_id'], 'pairs', 'fact_id', facts)
         )
 
     def get_verbal(self, table, id_list):
+        """Получение дополнительной (читаемой) информации по факту или решению"""
         return self.db.open_tuple_list(
             self.db.selection_by_column_in_values(['id', 'name', 'info'], table, 'id', id_list)
         )
 
     def get_all_pairs_verbal(self):
+        """Получение читаемой информации по всем парам (факт/решение)"""
         return self.db.broad_select_request(f"""
             SELECT pairs.id as pair_id, facts.name as fact_name, solutions.name as solution_name
             FROM pairs

@@ -15,12 +15,11 @@ class DataBase:
     def open_tuple_list(data: list):
         return [DataBase.open_tuple(elem) for elem in data]
 
-    # Подключение базы данных
     def _connect(self):
         return sqlite3.connect(self.path)
 
-    # Нечеткий запрос в базу данных
     def broad_select_request(self, query: str):
+        """Выборка списка по запросу"""
         db = self._connect()
         cursor = db.cursor()
         cursor.execute(query)
@@ -30,6 +29,7 @@ class DataBase:
         return records
 
     def single_select_request(self, query: str):
+        """Выборка единичной строки по запросу"""
         db = self._connect()
         cursor = db.cursor()
         cursor.execute(query)
@@ -39,6 +39,7 @@ class DataBase:
         return self.open_tuple(records)
 
     def selection_by_column_in_values(self, selection: list, table: str, column: str, values: list):
+        """Генерация запроса выборки"""
         if selection:
             selection = ", ".join(selection)
         else:

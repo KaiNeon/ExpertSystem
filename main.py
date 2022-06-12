@@ -7,6 +7,7 @@ logging.basicConfig(level=logging.WARNING)
 
 
 def print_solutions(kb, solutions):
+    """Процедура вывода ответов в удобной форме"""
     print("\nВозможные решения:")
     solutions_verbal = kb.get_verbal('solutions', solutions)
     if not solutions:
@@ -17,6 +18,7 @@ def print_solutions(kb, solutions):
             print(f"\t{row[0]}\t\t{row[1]}\t\t{row[2]}")
 
 
+# Точка входа основной программы
 if __name__ == '__main__':
     data_base = DataBase("KnowledgeBase.db")
     knowledge_base = KnowledgeBase(data_base)

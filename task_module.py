@@ -4,14 +4,14 @@ from kb_module import KnowledgeBase
 
 
 class Task:
-    # Инициализация текущей задачи
     def __init__(self, knowledge_base: KnowledgeBase):
+        """Инициализация текущей задачи"""
         self.kb = knowledge_base
         self.accepted_facts = []
         self.rejected_facts = []
 
-    # Задать вопрос пользователю в терминале
     def question(self, fact_id):
+        """Задать вопрос пользователю в терминале"""
         time.sleep(0.1)
         fact_info = self.kb.get_verbal('facts', [fact_id])[0]
 
@@ -28,7 +28,6 @@ class Task:
             self.rejected_facts.append(fact_id)
             logging.info(f"fact [{fact_id}] rejected")
 
-    # Доступные решения
     def _available_solutions(self):
         # Отсеивание решений, включающих отрицаемые факты
         solutions = self.kb.list_difference(
@@ -44,9 +43,11 @@ class Task:
         return solutions
 
     def _most_popular_solution(self, available_solutions):
+        """Выбор наиболее популярного решения из списка"""
         return self.kb.max_vote_up(available_solutions)[0]
 
     def _possible_facts(self, solution_id):
+        """Получение списка id доступных фактов"""
         facts_union = KnowledgeBase.list_union(self.accepted_facts, self.rejected_facts)
         return list(
             KnowledgeBase.list_difference(
@@ -55,6 +56,7 @@ class Task:
         )
 
     def get_answer(self):
+        """Получение списка возможных решений (при окончании поиска)"""
         logging.info(f"accepted facts: {self.accepted_facts}")
         logging.info(f"rejected facts: {self.rejected_facts}")
         result = self._available_solutions()
@@ -63,9 +65,10 @@ class Task:
         return result
 
     def find_solution_step(self):
+        """Шаг поиска решения задачи"""
         logging.info(f"available solutions:\t{self._available_solutions()}")
-        # Целевое решение не меняется, починить
 
+        # осталось одно доступное решение = решение является ответом
         available_solutions = self._available_solutions()
         if len(available_solutions) == 1:
             logging.info(f"last available solution")
