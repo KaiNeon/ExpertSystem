@@ -52,9 +52,10 @@ class KnowledgeBase:
             self.db.selection_by_column_in_values(['solution_id'], 'pairs', 'fact_id', facts)
         )
 
-    def get_solution_verbal(self, solution_id):
+    def get_verbal(self, table, id_list):
         return self.db.open_tuple_list(
-            self.db.broad_select_request(f"""SELECT * FROM solutions WHERE id={solution_id}"""))[0]
+            self.db.selection_by_column_in_values(['id', 'name', 'info'], table, 'id', id_list)
+        )
 
     def get_all_pairs_verbal(self):
         return self.db.broad_select_request(f"""

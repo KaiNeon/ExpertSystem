@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 
 
@@ -47,4 +48,5 @@ class DataBase:
         result = self.broad_select_request(f"""
             SELECT {selection} FROM {table} {condition}
         """)
+        logging.debug(f"[db][SELECT]\t{result}")
         return result
