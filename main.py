@@ -3,14 +3,18 @@ from task_module import Task
 from kb_module import KnowledgeBase
 from db_module import DataBase
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 
 
 def print_solutions(kb, solutions):
-    print("Возможные решения:")
+    print("\nВозможные решения:")
     solutions_verbal = kb.get_verbal('solutions', solutions)
-    for row in solutions_verbal:
-        print(f"\t{row[0]})\t{row[1]}:\t{row[2]}")
+    if not solutions:
+        print(f"\tНет данных.")
+    else:
+        print(f"\tНомер\tНаименование\tИнформация")
+        for row in solutions_verbal:
+            print(f"\t{row[0]}\t\t{row[1]}\t\t{row[2]}")
 
 
 if __name__ == '__main__':

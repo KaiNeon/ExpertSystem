@@ -1,4 +1,5 @@
 # Импорт необходимых библиотек и модулей
+import logging
 import random
 from db_module import DataBase
 
@@ -42,12 +43,25 @@ class KnowledgeBase:
             ['id', 'vote_up', 'vote_down', 'vote_count'], 'solutions', 'id', solutions_range
         )
 
-    def possible_facts(self, solution_id):
+    def select_facts(self, solution_id):
         return self.open_single_tuples(
             self.db.selection_by_column_in_values(['fact_id'], 'pairs', 'solution_id', [solution_id])
         )
 
-    def possible_solutions(self, facts):
+    def select_solutions(self, facts):
+        solutions = self.open_single_tuples(
+            self.db.selection_by_column_in_values(['solution_id'], 'pairs', 'fact_id', facts)
+        )
+        # Отсеивание неполных совпадений
+        result = []
+        for solution in solutions:
+            if solution not in result:
+                if solutions.count(solution) == len(facts):
+                    result.append(solution)
+        logging.debug(f"[kb][POSSIBLE_SOL]\t{result}")
+        return result
+
+    def select_rej_solutions(self, facts):
         return self.open_single_tuples(
             self.db.selection_by_column_in_values(['solution_id'], 'pairs', 'fact_id', facts)
         )
