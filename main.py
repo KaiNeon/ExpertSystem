@@ -20,7 +20,10 @@ def print_solutions(kb: KnowledgeBase, solutions):
 
 def print_voting(task: Task, solutions):
     """Процедура проведения опроса"""
-    answer = input("\nВведите не пустую строку, если решение оказалось верным.\n")
+    solutions_str = [str(solution) for solution in solutions]
+    answer = "blank"
+    while answer not in solutions_str and answer:
+        answer = input("\nВведите номер верного решения или пустую строку.\n")
     if answer:
         task.set_votes(solutions)
 
