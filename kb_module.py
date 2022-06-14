@@ -79,12 +79,3 @@ class KnowledgeBase:
         return self.db.open_tuple_list(
             self.db.selection_by_column_in_values(['id', 'name', 'info'], table, 'id', id_list)
         )
-
-    def get_all_pairs_verbal(self):
-        """Получение читаемой информации по всем парам (факт/решение)"""
-        return self.db.broad_select_request(f"""
-            SELECT pairs.id as pair_id, facts.name as fact_name, solutions.name as solution_name
-            FROM pairs
-            JOIN facts ON pairs.fact_id=facts.id
-            JOIN solutions ON pairs.solution_id=solutions.id
-        """)
