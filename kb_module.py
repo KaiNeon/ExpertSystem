@@ -25,6 +25,14 @@ class KnowledgeBase:
     def open_single_tuples(data: list):
         return [elem[0] for elem in data]
 
+    def increment_solution_vote_up(self, solution_id):
+        old_values = self.db.open_tuple_list(
+            self.db.selection_by_column_in_values(['vote_up', 'vote_count'], 'solutions', 'id', [solution_id])
+        )[0]
+        self.db.modify_request(f"""
+            UPDATE solutions SET vote_up={old_values[0] + 1}, vote_count={old_values[1] + 1} WHERE id={solution_id}
+        """)
+
     def all_solutions(self):
         """Получение id всех решений в базе"""
         return self.open_single_tuples(

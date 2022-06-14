@@ -10,7 +10,7 @@ class Task:
         self.accepted_facts = []
         self.rejected_facts = []
 
-    def question(self, fact_id):
+    def _question(self, fact_id):
         """Задать вопрос пользователю в терминале"""
         time.sleep(0.1)
         fact_info = self.kb.get_verbal('facts', [fact_id])[0]
@@ -55,6 +55,11 @@ class Task:
             )
         )
 
+    def set_votes(self, ids):
+        """Увеличение счетчиков популярности"""
+        for solution_id in ids:
+            self.kb.increment_solution_vote_up(solution_id)
+
     def get_answer(self):
         """Получение списка возможных решений (при окончании поиска)"""
         logging.info(f"accepted facts: {self.accepted_facts}")
@@ -66,12 +71,13 @@ class Task:
 
     def find_solution_step(self):
         """Шаг поиска решения задачи"""
-        logging.info(f"available solutions:\t{self._available_solutions()}")
 
         # осталось одно доступное решение = решение является ответом
         available_solutions = self._available_solutions()
-        if len(available_solutions) == 1:
-            logging.info(f"last available solution")
+        logging.info(f"available solutions:\t{available_solutions}")
+
+        if len(available_solutions) <= 1:
+            logging.info(f"run out of available solutions")
             return True
 
         target_solution_id = self._most_popular_solution(available_solutions)
@@ -88,11 +94,6 @@ class Task:
         target_fact_id = self.kb.random_element(target_fact_range)
 
         time.sleep(0.1)
-        self.question(target_fact_id)
-
-        # закончились доступные решения = прекратить поиск
-        if not self._available_solutions():
-            logging.info(f"run out of available solutions")
-            return True
+        self._question(target_fact_id)
 
         return False

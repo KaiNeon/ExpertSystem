@@ -18,6 +18,16 @@ class DataBase:
     def _connect(self):
         return sqlite3.connect(self.path)
 
+    def modify_request(self, query: str):
+        """Обновление информации в базе по запросу"""
+        db = self._connect()
+        cursor = db.cursor()
+        query = query
+        cursor.execute(query)
+        db.commit()
+        cursor.close()
+        db.close()
+
     def broad_select_request(self, query: str):
         """Выборка списка по запросу"""
         db = self._connect()
